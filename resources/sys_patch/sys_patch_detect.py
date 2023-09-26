@@ -516,11 +516,11 @@ class DetectRootPatch:
             return False
 
         # If we're on a Mac, check for Penryn or older
-        # This is due to Apple implementing an internal USB hub on post-Penryn (excluding MacPro4,1 and MacPro5,1)
+        # This is due to Apple implementing an internal USB hub on post-Penryn (excluding MacPro4,1, MacPro5,1 and Xserve3,1)
         # Ref: https://techcommunity.microsoft.com/t5/microsoft-usb-blog/reasons-to-avoid-companion-controllers/ba-p/270710
         if (
             smbios_data.smbios_dictionary[self.model]["CPU Generation"] <= cpu_data.CPUGen.penryn.value or \
-            self.model in ["MacPro4,1", "MacPro5,1"]
+            self.model in ["MacPro4,1", "MacPro5,1", "Xserve3,1"]
         ):
             return True
 
@@ -568,7 +568,12 @@ class DetectRootPatch:
 
         if (
             isinstance(self.constants.computer.wifi, device_probe.Broadcom)
-            and self.constants.computer.wifi.chipset in [device_probe.Broadcom.Chipsets.AirPortBrcm4360, device_probe.Broadcom.Chipsets.AirportBrcmNIC]):
+            and self.constants.computer.wifi.chipset in [
+                device_probe.Broadcom.Chipsets.AirPortBrcm4360,
+                device_probe.Broadcom.Chipsets.AirportBrcmNIC,
+                # We don't officially support this chipset, however we'll throw a bone to hackintosh users
+                device_probe.Broadcom.Chipsets.AirPortBrcmNICThirdParty,
+            ]):
             if self.constants.detected_os > os_data.os_data.ventura:
                 self.modern_wifi = True
                 self.amfi_shim_bins = True
