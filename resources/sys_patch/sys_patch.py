@@ -66,9 +66,9 @@ class PatchSysVolume:
         self.hardware_details = hardware_details
         self._init_pathing(custom_root_mount_path=None, custom_data_mount_path=None)
 
-        # self.skip_root_kmutil_requirement = self.hardware_details["Settings: Supports Auxiliary Cache"]
-        logging.info("HACK HACK -- force skip_root_kmutil_requirement = False") 
-        self.skip_root_kmutil_requirement = False
+        self.skip_root_kmutil_requirement = self.hardware_details["Settings: Supports Auxiliary Cache"]
+        #logging.info("HACK HACK -- force skip_root_kmutil_requirement = False") 
+        #self.skip_root_kmutil_requirement = False
 
     def _init_pathing(self, custom_root_mount_path: Path = None, custom_data_mount_path: Path = None) -> None:
         """
@@ -917,6 +917,25 @@ class PatchSysVolume:
                             logging.info(f"Return Code: {result.returncode}")
                             return False
 
+                        ### Copy orig '/System/Library/KernelCollections' ...
+                        ###
+                        if result.returncode == 0:
+                            logging.info("- Copy /System/Library/KerenlCollections/*")
+                            result = subprocess.run(
+                                [
+                                    "ditto", f"/System/Library/KernelCollections/", f"{self.mount_location}/System/Library/KernelCollections/"
+                                ],
+                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                            )
+                            if result.returncode == 0:
+                                return True
+
+                            logging.info("- Failed to Copy /System/Library/KerenlCollections")
+                            logging.info(f"Output: {result.stdout.decode()}")
+                            logging.info(f"Return Code: {result.returncode}")
+                            return False
+
+                        
                         logging.info("- Failed to mount DortaniaInternal resources")
                         logging.info(f"Output: {result.stdout.decode()}")
                         logging.info(f"Return Code: {result.returncode}")
