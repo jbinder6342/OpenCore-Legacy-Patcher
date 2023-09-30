@@ -66,7 +66,9 @@ class PatchSysVolume:
         self.hardware_details = hardware_details
         self._init_pathing(custom_root_mount_path=None, custom_data_mount_path=None)
 
-        self.skip_root_kmutil_requirement = self.hardware_details["Settings: Supports Auxiliary Cache"]
+        # self.skip_root_kmutil_requirement = self.hardware_details["Settings: Supports Auxiliary Cache"]
+        logging.info("HACK HACK -- force skip_root_kmutil_requirement = False") 
+        self.skip_root_kmutil_requirement = False
 
     def _init_pathing(self, custom_root_mount_path: Path = None, custom_data_mount_path: Path = None) -> None:
         """
@@ -139,10 +141,11 @@ class PatchSysVolume:
         """
 
         if self.skip_root_kmutil_requirement is True:
+            logging.info("skip_root_kmutil_requirement -- skip KDK install")
             return
         if self.constants.detected_os < os_data.os_data.ventura:
+            logging.info("os < ventura -- skip KDK install")
             return
-
         if self.constants.kdk_download_path.exists():
             if kdk_handler.KernelDebugKitUtilities().install_kdk_dmg(self.constants.kdk_download_path) is False:
                 logging.info("Failed to install KDK")
@@ -154,7 +157,8 @@ class PatchSysVolume:
             raise Exception(f"Unable to get KDK info: {kdk_obj.error_msg}")
 
         if kdk_obj.kdk_already_installed is False:
-
+            logging.info(f"KDK not installed...")
+            
             kdk_download_obj = kdk_obj.retrieve_download()
             if not kdk_download_obj:
                 logging.info(f"Could not retrieve KDK: {kdk_obj.error_msg}")
@@ -297,7 +301,7 @@ class PatchSysVolume:
             bool: True if successful, False if not
         """
 
-        logging.info("- Rebuilding Kernel Cache (This may take some time)")
+        logging.info(f"- Rebuilding Kernel Cache (This may take some time); doing kmutil")
         if self.constants.detected_os > os_data.os_data.catalina:
             # Base Arguments
             args = ["kmutil", "install"]
@@ -350,6 +354,8 @@ class PatchSysVolume:
         else:
             args = ["kextcache", "-i", f"{self.mount_location}/"]
 
+        logging.info("- Rebuilding Kernel Cache; doing kmutil args:%s" % " ".join(str(arg) for arg in args))            
+            
         result = utilities.elevated(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         # kextcache notes:
@@ -446,7 +452,7 @@ class PatchSysVolume:
         """
 
         if self.constants.detected_os == os_data.os_data.catalina:
-            logging.info("- Rebuilding preboot kernel cache")
+            logging.info("- Rebuilding preboot kernel cache -- kcditto")
             utilities.process_status(utilities.elevated(["kcditto"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT))
 
 
@@ -752,6 +758,8 @@ class PatchSysVolume:
                             if not Path(source_file).exists():
                                 raise Exception(f"Failed to find {source_file}")
 
+        logging.info(f"- merge KDK with root...")
+                            
         # Ensure KDK is properly installed
         self._merge_kdk_with_root(save_hid_cs=True if "Legacy USB 1.1" in required_patches else False)
 
@@ -893,7 +901,8 @@ class PatchSysVolume:
                             stdout=subprocess.PIPE, stderr=subprocess.STDOUT
                         )
                         if result.returncode == 0:
-                            logging.info("- Mounted DortaniaInternal resources")
+                            logging.info("- Mounted DortaniaInternal resources ditto -- ",
+                                         "ditto", f"{self.constants.payload_path / Path('DortaniaInternal')}", f"{self.constants.payload_path / Path('Universal-Binaries')}")
                             result = subprocess.run(
                                 [
                                     "ditto", f"{self.constants.payload_path / Path('DortaniaInternal')}", f"{self.constants.payload_path / Path('Universal-Binaries')}"
