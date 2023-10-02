@@ -1,5 +1,8 @@
 # OpenCore Legacy Patcher changelog
 
+## 1.1.0
+- Add error handling for corrupted patcher settings
+
 ## 1.0.0
 - Resolve BCM2046 and BCM2070 support on macOS 13.3 and newer
 - Workaround 13.3+ Kernel Panic on AMD GCN GPUs playing DRM content
@@ -10,6 +13,10 @@
   - Note building from source will require Python 3.11 or newer and up-to-date Python modules
 - Update font handling code, fixing font issues on Yosemite and El Capitan
 - Resolve incorrect RELEASE usage of OpenCore binaries when DEBUG enabled
+- Add RenderBox.framework patch for 3802-based Intel GPUs on macOS 13.3 and newer
+  - Works around Weather and Widget freezing
+  - Applicable for Intel Ivy Bridge and Haswell iGPUs
+- Add macOS Sonoma support to PatcherSupportPkg validation in CI
 - Implement basic support for macOS Sonoma:
   - Supports same range of hardware as Ventura, in addition to:
     - iMac18,x
@@ -35,7 +42,7 @@
   - CPUFriend 1.2.7 - release
   - BlueToolFixup 2.6.8 - rolling (2305aaa)
   - CryptexFixup 1.0.2 - release
-  - PatcherSupportPkg 1.3.0 - release
+  - PatcherSupportPkg 1.3.2 - release
 - Build Server Changes:
   - Upgrade Python backend to 3.11.5
   - Upgrade Python modules:
