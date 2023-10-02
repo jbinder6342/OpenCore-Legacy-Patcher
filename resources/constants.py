@@ -13,7 +13,7 @@ from data import os_data
 class Constants:
     def __init__(self) -> None:
         # Patcher Versioning
-        self.patcher_version:                 str = "0.6.9"  # OpenCore-Legacy-Patcher
+        self.patcher_version:                 str = "1.0.0"  # OpenCore-Legacy-Patcher
         self.patcher_support_pkg_version:     str = "1.3.1"  # PatcherSupportPkg
         self.copyright_date:                  str = "Copyright © 2020-2023 Dortania"
         self.patcher_name:                    str = "OpenCore Legacy Patcher -- Sonoma Bld"
@@ -126,6 +126,7 @@ class Constants:
         self.current_path:  Path = Path(__file__).parent.parent.resolve()
         self.original_path: Path = Path(__file__).parent.parent.resolve()
         self.payload_path:  Path = self.current_path / Path("payloads")
+
 
         # Patcher Settings
         ## Internal settings
@@ -723,6 +724,26 @@ class Constants:
         return self.payload_path / Path("Icon/SSD/.VolumeIcon.icns")
 
     @property
+    def icon_path_macos_generic(self):
+        return self.payload_path / Path("Icon/AppIcons/Generic.icns")
+
+    @property
+    def icon_path_macos_big_sur(self):
+        return self.payload_path / Path("Icon/AppIcons/BigSur.icns")
+
+    @property
+    def icon_path_macos_monterey(self):
+        return self.payload_path / Path("Icon/AppIcons/Monterey.icns")
+
+    @property
+    def icon_path_macos_ventura(self):
+        return self.payload_path / Path("Icon/AppIcons/Ventura.icns")
+
+    @property
+    def icon_path_macos_sonoma(self):
+        return self.payload_path / Path("Icon/AppIcons/Sonoma.icns")
+
+    @property
     def gui_path(self):
         return self.payload_path / Path("Icon/Resources.zip")
 
@@ -749,6 +770,16 @@ class Constants:
             return self.payload_path / Path("Icon/AppIcons")
         return Path(self.launcher_binary).parent.parent / Path("Resources")
 
+
+    @property
+    def icons_path(self):
+        return [
+            str(self.icon_path_macos_generic),
+            str(self.icon_path_macos_big_sur),
+            str(self.icon_path_macos_monterey),
+            str(self.icon_path_macos_ventura),
+            str(self.icon_path_macos_sonoma)
+        ]
 
     sbm_values = [
         "j137ap",  #  iMacPro1,1

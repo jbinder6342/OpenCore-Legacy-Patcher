@@ -1,16 +1,14 @@
 # OpenCore Legacy Patcher changelog
 
-## 0.6.9
+## 1.0.0
 - Resolve BCM2046 and BCM2070 support on macOS 13.3 and newer
 - Workaround 13.3+ Kernel Panic on AMD GCN GPUs playing DRM content
 - Add new macOS Installer download menu (Jazzzny)
+- Refresh download UI (Jazzzny)
 - Add support for Universal 2 distribution (x86_64 and ARM64)
   - Drops Rosetta requirement on Apple Silicon Macs
   - Note building from source will require Python 3.11 or newer and up-to-date Python modules
 - Update font handling code, fixing font issues on Yosemite and El Capitan
-- Add `OpenLegacyBoot.efi` for Macs with CSM
-  - Allows for booting CSM-based OSes (ex. Windows 7)
-  - Applicable for Ivy Bridge and older Macs (excluding MacPro6,1)
 - Resolve incorrect RELEASE usage of OpenCore binaries when DEBUG enabled
 - Implement basic support for macOS Sonoma:
   - Supports same range of hardware as Ventura, in addition to:
