@@ -14,7 +14,7 @@ class Constants:
     def __init__(self) -> None:
         # Patcher Versioning
         self.patcher_version:                 str = "1.1.0x"  # OpenCore-Legacy-Patcher
-        self.patcher_support_pkg_version:     str = "1.3.4"  # PatcherSupportPkg
+        self.patcher_support_pkg_version:     str = "1.3.5"  # PatcherSupportPkg
         self.copyright_date:                  str = "Copyright © 2020-2023 Dortania"
         self.patcher_name:                    str = "OpenCore Legacy Patcher -- Priv. Bld"
 
@@ -36,7 +36,7 @@ class Constants:
         self.lilu_version:               str = "1.6.7"  #      Lilu
         self.whatevergreen_version:      str = "1.6.6"  #      WhateverGreen
         self.whatevergreen_navi_version: str = "1.6.6-Navi"  # WhateverGreen (Navi Patch)
-        self.airportbcrmfixup_version:   str = "2.1.7"  #      AirPortBrcmFixup
+        self.airportbcrmfixup_version:   str = "2.1.8"  #      AirPortBrcmFixup
         self.nvmefix_version:            str = "1.1.1"  #      NVMeFix
         self.applealc_version:           str = "1.6.3"  #      AppleALC
         self.restrictevents_version:     str = "1.1.3"  #      RestrictEvents
