@@ -70,7 +70,7 @@ class MainFrame(wx.Frame):
         """
 
         # Title label: OpenCore Legacy Patcher v{X.Y.Z}
-        title_label = wx.StaticText(self, label=f"OpenCore Legacy Patcher {'' if self.constants.special_build else 'v'}{self.constants.patcher_version}", pos=(-1, 10))
+        title_label = wx.StaticText(self, label=f"OpenCore Legacy Patcher {'' if self.constants.special_build else ''}{self.constants.patcher_version}{' (Nightly)' if not self.constants.commit_info[0].startswith('refs/tags') else ''}", pos=(-1, 10))
         title_label.SetFont(gui_support.font_factory(19, wx.FONTWEIGHT_BOLD))
         title_label.Centre(wx.HORIZONTAL)
 
@@ -276,7 +276,7 @@ class MainFrame(wx.Frame):
     def _check_for_updates(self):
         if self.constants.has_checked_updates is True:
             return
-        
+
         ignore_updates = global_settings.GlobalEnviromentSettings().read_property("IgnoreAppUpdates")
         if ignore_updates is True:
             self.constants.ignore_updates = True
@@ -290,7 +290,7 @@ class MainFrame(wx.Frame):
 
         version = dict["Version"]
         logging.info(f"New version: {version}")
-        
+
         wx.CallAfter(self.on_update, dict["Link"], version, dict["Github Link"])
 
     def on_build_and_install(self, event: wx.Event = None):
@@ -345,7 +345,12 @@ class MainFrame(wx.Frame):
 
         url = "https://api.github.com/repos/dortania/OpenCore-Legacy-Patcher/releases/latest"
         response = requests.get(url).json()
-        changelog = response["body"].split("## Asset Information")[0]
+        try:
+            changelog = response["body"].split("## Asset Information")[0]
+        except: #if user constantly checks for updates, github will rate limit them
+            changelog = """## Unable to fetch changelog
+
+Please check the Github page for more information about this release."""
 
         html_markdown = markdown2.markdown(changelog)
         html_css = """
@@ -366,20 +371,20 @@ class MainFrame(wx.Frame):
     @media (prefers-color-scheme: dark) {
         body {
             color: #fff;
-            background-color: rgb(47,47,47);   
+            background-color: rgb(47,47,47);
         }
-        
+
     }
 </style>
 """
-        frame = wx.Dialog(None, -1, title="", size=(600, 500))
-        frame.SetMinSize((600, 500))
+        frame = wx.Dialog(None, -1, title="", size=(650, 500))
+        frame.SetMinSize((650, 500))
         frame.SetWindowStyle(wx.STAY_ON_TOP)
         panel = wx.Panel(frame)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.AddSpacer(10)
         self.title_text = wx.StaticText(panel, label="A new version of OpenCore Legacy Patcher is available!")
-        self.description = wx.StaticText(panel, label=f"OpenCore Legacy Patcher {oclp_version} is now available - You have {self.constants.patcher_version}. Would you like to update?")
+        self.description = wx.StaticText(panel, label=f"OpenCore Legacy Patcher {oclp_version} is now available - You have {self.constants.patcher_version}{' (Nightly)' if not self.constants.commit_info[0].startswith('refs/tags') else ''}. Would you like to update?")
         self.title_text.SetFont(wx.Font(19, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, ".AppleSystemUIFont"))
         self.description.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, ".AppleSystemUIFont"))
         self.web_view = wx.html2.WebView.New(panel, style=wx.BORDER_SUNKEN)
@@ -408,7 +413,7 @@ class MainFrame(wx.Frame):
         frame.Centre()
 
         result = frame.ShowModal()
-        
+
 
         if result == ID_GITHUB:
             webbrowser.open(oclp_github_url)
@@ -421,6 +426,8 @@ class MainFrame(wx.Frame):
             url=oclp_url,
             version_label=oclp_version
         )
+
+        frame.Destroy()
 
     def _onWebviewNav(self, event):
         url = event.GetURL()
