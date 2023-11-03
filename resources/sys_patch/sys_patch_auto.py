@@ -9,13 +9,14 @@ import logging
 import plistlib
 import subprocess
 import webbrowser
+import hashlib
 
 from pathlib import Path
 
 
 from resources import utilities, updates, global_settings, network_handler, constants
 from resources.sys_patch import sys_patch_detect
-from resources.wx_gui import gui_entry
+from resources.wx_gui import gui_entry, gui_support
 
 
 class AutomaticSysPatch:
@@ -103,8 +104,8 @@ Please check the Github page for more information about this release."""
             sizer.AddSpacer(10)
             self.title_text = wx.StaticText(panel, label="A new version of OpenCore Legacy Patcher is available!")
             self.description = wx.StaticText(panel, label=f"OpenCore Legacy Patcher {version} is now available - You have {self.constants.patcher_version}{' (Nightly)' if not self.constants.commit_info[0].startswith('refs/tags') else ''}. Would you like to update?")
-            self.title_text.SetFont(wx.Font(19, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, ".AppleSystemUIFont"))
-            self.description.SetFont(wx.Font(13, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, False, ".AppleSystemUIFont"))
+            self.title_text.SetFont(gui_support.font_factory(19, wx.FONTWEIGHT_BOLD))
+            self.description.SetFont(gui_support.font_factory(13, wx.FONTWEIGHT_NORMAL))
             self.web_view = wx.html2.WebView.New(panel, style=wx.BORDER_SUNKEN)
             html_code = html_css+html_markdown.replace("<a href=", "<a target='_blank' href=")
             self.web_view.SetPage(html_code, "")
@@ -331,7 +332,7 @@ Please check the Github page for more information about this release."""
             logging.info("- Unable to determine if boot disk is removable, skipping prompt")
 
 
-    def install_auto_patcher_launch_agent(self):
+    def install_auto_patcher_launch_agent(self, kdk_caching_needed: bool = False):
         """
         Install the Auto Patcher Launch Agent
 
@@ -350,12 +351,16 @@ Please check the Github page for more information about this release."""
             self.constants.auto_patch_launch_agent_path:        "/Library/LaunchAgents/com.dortania.opencore-legacy-patcher.auto-patch.plist",
             self.constants.update_launch_daemon_path:           "/Library/LaunchDaemons/com.dortania.opencore-legacy-patcher.macos-update.plist",
             **({ self.constants.rsr_monitor_launch_daemon_path: "/Library/LaunchDaemons/com.dortania.opencore-legacy-patcher.rsr-monitor.plist" } if self._create_rsr_monitor_daemon() else {}),
+            **({ self.constants.kdk_launch_daemon_path:         "/Library/LaunchDaemons/com.dortania.opencore-legacy-patcher.os-caching.plist" } if kdk_caching_needed is True else {} ),
         }
 
         for service in services:
             name = Path(service).name
             logging.info(f"- Installing {name}")
             if Path(services[service]).exists():
+                if hashlib.sha256(open(service, "rb").read()).hexdigest() == hashlib.sha256(open(services[service], "rb").read()).hexdigest():
+                    logging.info(f"  - {name} checksums match, skipping")
+                    continue
                 logging.info(f"  - Existing service found, removing")
                 utilities.process_status(utilities.elevated(["rm", services[service]], stdout=subprocess.PIPE, stderr=subprocess.STDOUT))
             # Create parent directories

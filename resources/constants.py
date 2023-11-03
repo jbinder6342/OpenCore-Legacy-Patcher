@@ -14,7 +14,7 @@ class Constants:
     def __init__(self) -> None:
         # Patcher Versioning
         self.patcher_version:                 str = "1.2.0x"  # OpenCore-Legacy-Patcher
-        self.patcher_support_pkg_version:     str = "1.4.3"  # PatcherSupportPkg
+        self.patcher_support_pkg_version:     str = "1.4.5"  # PatcherSupportPkg
         self.copyright_date:                  str = "Copyright © 2020-2023 Dortania"
         self.patcher_name:                    str = "OpenCore Legacy Patcher -- Priv. Bld"
 
@@ -279,18 +279,26 @@ class Constants:
     def plist_template(self):
         return self.payload_path / Path("Config/config.plist")
 
-    # Launch Agent
+    # Launch Services
+    @property
+    def launch_services_path(self):
+        return self.payload_path / Path("Launch Services")
+
     @property
     def auto_patch_launch_agent_path(self):
-        return self.payload_path / Path("com.dortania.opencore-legacy-patcher.auto-patch.plist")
+        return self.launch_services_path / Path("com.dortania.opencore-legacy-patcher.auto-patch.plist")
 
     @property
     def rsr_monitor_launch_daemon_path(self):
-        return self.payload_path / Path("com.dortania.opencore-legacy-patcher.rsr-monitor.plist")
+        return self.launch_services_path / Path("com.dortania.opencore-legacy-patcher.rsr-monitor.plist")
 
     @property
     def update_launch_daemon_path(self):
-        return self.payload_path / Path("com.dortania.opencore-legacy-patcher.macos-update.plist")
+        return self.launch_services_path / Path("com.dortania.opencore-legacy-patcher.macos-update.plist")
+
+    @property
+    def kdk_launch_daemon_path(self):
+        return self.launch_services_path / Path("com.dortania.opencore-legacy-patcher.os-caching.plist")
 
     # ACPI
     @property
@@ -708,6 +716,13 @@ class Constants:
 
     # Icons
     @property
+    def icns_resource_path(self):
+        if self.launcher_script:
+            return self.payload_path / Path("Icon/AppIcons")
+        return Path(self.launcher_binary).parent.parent / Path("Resources")
+
+
+    @property
     def app_icon_path(self):
         return self.payload_path / Path("OC-Patcher.icns")
 
@@ -729,23 +744,23 @@ class Constants:
 
     @property
     def icon_path_macos_generic(self):
-        return self.payload_path / Path("Icon/AppIcons/Generic.icns")
+        return self.icns_resource_path / Path("Generic.icns")
 
     @property
     def icon_path_macos_big_sur(self):
-        return self.payload_path / Path("Icon/AppIcons/BigSur.icns")
+        return self.icns_resource_path / Path("BigSur.icns")
 
     @property
     def icon_path_macos_monterey(self):
-        return self.payload_path / Path("Icon/AppIcons/Monterey.icns")
+        return self.icns_resource_path / Path("Monterey.icns")
 
     @property
     def icon_path_macos_ventura(self):
-        return self.payload_path / Path("Icon/AppIcons/Ventura.icns")
+        return self.icns_resource_path / Path("Ventura.icns")
 
     @property
     def icon_path_macos_sonoma(self):
-        return self.payload_path / Path("Icon/AppIcons/Sonoma.icns")
+        return self.icns_resource_path / Path("Sonoma.icns")
 
     @property
     def gui_path(self):
@@ -767,13 +782,6 @@ class Constants:
     @property
     def kdk_download_path(self):
         return self.payload_path / Path("KDK.dmg")
-
-    @property
-    def icns_resource_path(self):
-        if self.launcher_script:
-            return self.payload_path / Path("Icon/AppIcons")
-        return Path(self.launcher_binary).parent.parent / Path("Resources")
-
 
     @property
     def icons_path(self):
