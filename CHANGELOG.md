@@ -1,5 +1,8 @@
 # OpenCore Legacy Patcher changelog
 
+## 1.4.0
+- Refactor subprocess invocations
+
 ## 1.3.0
 - Resolve mismatched `CFBundleExecutable` and binary name for kexts.
   - Resolves ProperTree binary detection (Thanks @CorpNewt).
