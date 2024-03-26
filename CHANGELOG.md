@@ -1,5 +1,15 @@
 # OpenCore Legacy Patcher changelog
 
+## 1.4.3
+- Update non-Metal Binaries for macOS Sonoma:
+  - Resolve TeraScale 2 screen recording kernel panic
+  - Resolve Dock location after changing screen resolution
+  - Resolve 14.4 loginwindow crashes
+- Patch SkipLogo on Macs that natively support Monterey or newer
+  - Resolves missing Apple logo on boot screen
+- Increment Binaries:
+  - OpenCorePkg 0.9.9 - release
+
 ## 1.4.2
 - Resolve Auto-Join support for Modern Wireless on macOS 14.4
   - Applicable for BCM94360, 4360, 4350, 4331 and 43224 chipsets
