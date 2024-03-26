@@ -13,15 +13,10 @@ from data import os_data
 class Constants:
     def __init__(self) -> None:
         # Patcher Versioning
-<<<<<<< HEAD
-        self.patcher_version:                 str = "1.4.2x"  # OpenCore-Legacy-Patcher
-        self.patcher_support_pkg_version:     str = "1.4.7"  # PatcherSupportPkg
-=======
-        self.patcher_version:                 str = "1.4.2"  # OpenCore-Legacy-Patcher
-        self.patcher_support_pkg_version:     str = "1.4.8"  # PatcherSupportPkg
->>>>>>> main
+        self.patcher_version:                 str = "1.4.3x"  # OpenCore-Legacy-Patcher
+        self.patcher_support_pkg_version:     str = "1.4.9"  # PatcherSupportPkg
         self.copyright_date:                  str = "Copyright © 2020-2024 Dortania"
-        self.patcher_name:                    str = "OpenCore Legacy Patcher -- Priv. Bld"
+        self.patcher_name:                    str = "OpenCore Legacy Patcher -- priv. build"
 
         # URLs
         self.url_patcher_support_pkg:         str = "https://github.com/dortania/PatcherSupportPkg/releases/download/"
@@ -33,7 +28,7 @@ class Constants:
 
         # OpenCore Versioning
         # https://github.com/acidanthera/OpenCorePkg
-        self.opencore_version: str = "0.9.7"
+        self.opencore_version: str = "0.9.9"
 
         # Kext Versioning
         ## Acidanthera
@@ -236,7 +231,7 @@ class Constants:
         self.force_vmm:              bool = False  # Force VMM patch
         self.disable_connectdrivers: bool = False  # Disable ConnectDrivers (hibernation)
         self.set_vmm_cpuid:          bool = False  # Set VMM bit inside CPUID
-        self.disable_mediaanalysisd: bool = True  # Set mediaanalysisd to 'not' spawn
+        self.disable_mediaanalysisd: bool = False  # Set mediaanalysisd to spawn
         self.set_alc_usage:          bool = True  #  Set AppleALC usage
         self.allow_3rd_party_drives: bool = True  #  Allow ThridPartyDrives quirk
         self.allow_nvme_fixing:      bool = True  #  Allow NVMe Kernel Space Patches
