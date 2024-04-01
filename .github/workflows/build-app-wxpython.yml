@@ -25,7 +25,7 @@ jobs:
       ANALYTICS_SITE: ${{ secrets.ANALYTICS_SITE }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build Binary
         run: /Library/Frameworks/Python.framework/Versions/3.11/bin/python3 Build-Binary.command --reset_binaries --branch "${{ env.branch }}" --commit "${{ env.commiturl }}" --commit_date "${{ env.commitdate }}" --key "${{ env.ANALYTICS_KEY }}" --site "${{ env.ANALYTICS_SITE }}"
@@ -47,19 +47,19 @@ jobs:
         run: xcrun notarytool submit OpenCore-Patcher-wxPython.app.zip --apple-id "${{ env.MAC_NOTARIZATION_USERNAME }}" --password "${{ env.MAC_NOTARIZATION_PASSWORD }}" --team-id "${{ env.MAC_NOTARIZATION_TEAM_ID }}"
 
       - name: Generate support package
-        run: packagesbuild ./payloads/InstallPackage/AutoPkg-Assets-Setup.pkgproj
+        run: /usr/local/bin/packagesbuild ./payloads/InstallPackage/AutoPkg-Assets-Setup.pkgproj
 
       - name: Prepare App for Upload
         run: mv ./OpenCore-Patcher-wxPython.app.zip ./OpenCore-Patcher-GUI.app.zip
 
       - name: Upload App to Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: OpenCore-Patcher.app (GUI)
           path: OpenCore-Patcher-GUI.app.zip
 
       - name: Upload Package to Artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: AutoPkg-Assets.pkg
           path: ./dist/AutoPkg-Assets.pkg
