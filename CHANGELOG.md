@@ -16,6 +16,10 @@
   - Adjusted to use functions for better readability
   - Implements ZSH shebang
   - Removes OS logging
+- Disable usage of `OpenLegacyBoot.efi`
+  - Resolves boot issues on certain CSM-based Macs
+- Increment Binaries:
+  - OpenCorePkg 1.0.0 - release
 
 ## 1.4.3
 - Update non-Metal Binaries for macOS Sonoma:
