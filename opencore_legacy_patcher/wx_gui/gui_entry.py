@@ -8,6 +8,7 @@ import atexit
 import logging
 
 from .. import constants
+from Cocoa import NSApp, NSApplication
 
 from ..sys_patch import sys_patch_detect
 
