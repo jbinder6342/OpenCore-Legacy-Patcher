@@ -114,8 +114,13 @@ int main(int argc, const char * argv[]) {
         #ifdef DEBUG
         // Skip Team ID check in debug mode
         // DO NOT USE IN PRODUCTION
+	printf("skipping check for VALID_CLIENT_TEAM_ID: '%s'=='%s'\n",
+	       (const char *) VALID_CLIENT_TEAM_ID, (char *) processSigningInformation[@"teamid"]);
         #else
         // Check Team ID
+	printf("checking VALID_CLIENT_TEAM_ID: '%s'=='%s'\n",
+	       (const char *) VALID_CLIENT_TEAM_ID, (char *) processSigningInformation[@"teamid"]);
+
         if (![processSigningInformation[@"teamid"] isEqualToString:VALID_CLIENT_TEAM_ID] || ![parentProcessSigningInformation[@"teamid"] isEqualToString:VALID_CLIENT_TEAM_ID]) {
             return OCLP_PHT_ERROR_INVALID_TEAM_ID;
         }
