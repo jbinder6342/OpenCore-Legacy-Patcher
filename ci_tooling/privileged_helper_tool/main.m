@@ -16,7 +16,8 @@
 
 #define UTILITY_VERSION "1.0.0"
 
-#define VALID_CLIENT_TEAM_ID @"S74BDJXQMD"
+// #define VALID_CLIENT_TEAM_ID @"S74BDJXQMD" //com.dortania * 
+#define VALID_CLIENT_TEAM_ID @"689RP737QS" // mine; jbinder
 
 #define OCLP_PHT_ERROR_MISSING_ARGUMENTS           160
 #define OCLP_PHT_ERROR_SET_UID_MISSING             161
