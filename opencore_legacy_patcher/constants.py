@@ -61,6 +61,7 @@ class Constants:
         self.apfs_zlib_v2_version:  str = "12.6"  #   NoAVXFSCompressionTypeZlib (patched with AVXpel)
         self.multitouch_version:    str = "1.0.0"  #  AppleUSBMultitouch
         self.topcase_version:       str = "1.0.0"  #  AppleUSBTopCase
+        self.topcase_inj_version:   str = "1.0.0"  #  AppleTopCaseInjector
         self.intel_82574l_version:  str = "1.0.0"  #  Intel82574L
         self.intel_8254x_version:   str = "1.0.0"  #  AppleIntel8254XEthernet
         self.apple_usb_11_injector: str = "1.0.0"  #  AppleUSBUHCI/OHCI
@@ -451,6 +452,10 @@ class Constants:
         return self.payload_kexts_path / Path(f"Misc/AppleUSBTopCase-v{self.topcase_version}.zip")
 
     @property
+    def top_case_inj_path(self):
+        return self.payload_kexts_path / Path(f"Misc/AppleTopCaseInjector-v{self.topcase_inj_version}.zip")
+
+    @property
     def t1_key_store_path(self):
         return self.payload_kexts_path / Path(f"Misc/AppleKeyStore-v{self.t1_key_store_version}.zip")
 
@@ -778,6 +783,10 @@ class Constants:
         return self.icns_resource_path / Path("Sonoma.icns")
 
     @property
+    def icon_path_macos_sequoia(self):
+        return self.icns_resource_path / Path("Sequoia.icns")
+
+    @property
     def gui_path(self):
         return self.payload_path / Path("Icon/Resources.zip")
 
@@ -805,7 +814,8 @@ class Constants:
             str(self.icon_path_macos_big_sur),
             str(self.icon_path_macos_monterey),
             str(self.icon_path_macos_ventura),
-            str(self.icon_path_macos_sonoma)
+            str(self.icon_path_macos_sonoma),
+            str(self.icon_path_macos_sequoia),
         ]
 
     sbm_values = [
