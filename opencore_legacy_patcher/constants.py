@@ -13,10 +13,10 @@ from .detections import device_probe
 class Constants:
     def __init__(self) -> None:
         # Patcher Versioning
-        self.patcher_version:                 str = "1.6.99x"  # OpenCore-Legacy-Patcher
+        self.patcher_version:                 str = "1.7.99x"  # OpenCore-Legacy-Patcher
         self.patcher_support_pkg_version:     str = "1.4.9"  # PatcherSupportPkg
         self.copyright_date:                  str = "Copyright © 2020-2024 Dortania"
-        self.patcher_name:                    str = "OpenCore Legacy Patcher -- Priv expr. build."
+        self.patcher_name:                    str = "OpenCore Legacy Patcher -- Sequoia Expr build."
 
         # URLs
         self.url_patcher_support_pkg:         str = "https://github.com/dortania/PatcherSupportPkg/releases/download/"
