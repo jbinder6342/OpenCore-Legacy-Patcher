@@ -262,6 +262,9 @@ class SysPatchHelpers:
                 return
             BASE_VERSION = "32023"
             GPU_VERSION = f"{BASE_VERSION}.26"
+        elif self.constants.detected_os == os_data.os_data.sequoia:
+            BASE_VERSION = "32023"
+            GPU_VERSION = f"{BASE_VERSION}.330"
 
         LIBRARY_DIR = f"{mount_point}/System/Library/PrivateFrameworks/GPUCompiler.framework/Versions/{BASE_VERSION}/Libraries/lib/clang"
         DEST_DIR = f"{LIBRARY_DIR}/{GPU_VERSION}"
