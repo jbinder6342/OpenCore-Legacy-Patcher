@@ -71,7 +71,7 @@ class GenerateDiskImages:
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE
             )
 
-        print("Generating DMG...")
+        print("Generating DMG (payloads.dmg)...")
         subprocess_wrapper.run_and_verify([
             '/usr/bin/hdiutil', 'create', './payloads.dmg',
             '-megabytes', '32000',  # Overlays can only be as large as the disk image allows
@@ -96,7 +96,7 @@ class GenerateDiskImages:
             "Universal-Binaries.dmg"
         ]
 
-        print("Downloading required resources...")
+        print(f"Downloading required resources:{required_resources[0]}...")
         for resource in required_resources:
             if Path(f"./{resource}").exists():
                 if self.reset_dmg_cache is True:
@@ -112,7 +112,7 @@ class GenerateDiskImages:
                     print(f"- {resource} already exists, skipping download")
                     continue
 
-            print(f"- Downloading {resource}...")
+            print(f"- Downloading https://github.com/dortania/PatcherSupportPkg/releases/download/{patcher_support_pkg_version}/{resource}")
 
             subprocess_wrapper.run_and_verify(
                 [
