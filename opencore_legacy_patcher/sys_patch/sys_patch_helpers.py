@@ -16,7 +16,6 @@ from .. import constants
 from ..datasets import os_data
 
 from ..support import (
-    bplist,
     generate_smbios,
     subprocess_wrapper
 )
@@ -146,56 +145,6 @@ class SysPatchHelpers:
         #   'chflags nouchg /private/var/folders/*/*/*/WindowServer'
 
 
-    def remove_news_widgets(self):
-        """
-        Remove News Widgets from Notification Centre
-
-        On Ivy Bridge and Haswell iGPUs, RenderBox will crash the News Widgets in
-        Notification Centre. To ensure users can access Notifications normally,
-        we manually remove all News Widgets
-        """
-
-        if self.constants.detected_os < os_data.os_data.ventura:
-            return
-
-        logging.info("Parsing Notification Centre Widgets")
-        file_path = "~/Library/Containers/com.apple.notificationcenterui/Data/Library/Preferences/com.apple.notificationcenterui.plist"
-        file_path = Path(file_path).expanduser()
-
-        if not file_path.exists():
-            logging.info("- Defaults file not found, skipping")
-            return
-
-        did_find = False
-        with open(file_path, "rb") as f:
-            data = plistlib.load(f)
-            if "widgets" not in data:
-                return
-
-            if "instances" not in data["widgets"]:
-                return
-
-            for widget in list(data["widgets"]["instances"]):
-                widget_data = bplist.BPListReader(widget).parse()
-                for entry in widget_data:
-                    if 'widget' not in entry:
-                        continue
-                    sub_data = bplist.BPListReader(widget_data[entry]).parse()
-                    for sub_entry in sub_data:
-                        if not '$object' in sub_entry:
-                            continue
-                        if not b'com.apple.news' in sub_data[sub_entry][2]:
-                            continue
-                        logging.info(f"- Found News Widget to remove: {sub_data[sub_entry][2].decode('ascii')}")
-                        data["widgets"]["instances"].remove(widget)
-                        did_find = True
-
-        if did_find:
-            with open(file_path, "wb") as f:
-                plistlib.dump(data, f, sort_keys=False)
-            subprocess.run(["/usr/bin/killall", "NotificationCenter"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-
     def install_rsr_repair_binary(self):
         """
         Installs RSRRepair
@@ -262,9 +211,10 @@ class SysPatchHelpers:
                 return
             BASE_VERSION = "32023"
             GPU_VERSION = f"{BASE_VERSION}.26"
-        elif self.constants.detected_os == os_data.os_data.sequoia:
+        else:
+            # Fall back for newer versions
             BASE_VERSION = "32023"
-            GPU_VERSION = f"{BASE_VERSION}.330"
+            GPU_VERSION = f"{BASE_VERSION}.26"
 
         LIBRARY_DIR = f"{mount_point}/System/Library/PrivateFrameworks/GPUCompiler.framework/Versions/{BASE_VERSION}/Libraries/lib/clang"
         DEST_DIR = f"{LIBRARY_DIR}/{GPU_VERSION}"
