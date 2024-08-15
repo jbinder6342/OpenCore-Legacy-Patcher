@@ -112,6 +112,9 @@ def generate_log(process: subprocess.CompletedProcess) -> str:
             ...
     """
     output = "Subprocess failed.\n"
+
+    logging.info(f"running Command:{process.args}")
+    
     output += f"    Command: {process.args}\n"
     output += f"    Return Code: {process.returncode}\n"
     _returned_error = __resolve_privileged_helper_errors(process.returncode)
