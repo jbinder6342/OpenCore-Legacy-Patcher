@@ -2,6 +2,7 @@
 validation.py: Validation class for the patcher
 """
 
+import atexit
 import logging
 import subprocess
 
@@ -132,6 +133,11 @@ class PatcherValidation:
                     if install_type in patchset[patch_subject][patch_core]:
                         for install_directory in patchset[patch_subject][patch_core][install_type]:
                             for install_file in patchset[patch_subject][patch_core][install_type][install_directory]:
+                                try:
+                                    if patchset[patch_subject][patch_core][install_type][install_directory][install_file] in sys_patch_dict.DynamicPatchset:
+                                        continue
+                                except TypeError:
+                                    pass
                                 source_file = str(self.constants.payload_local_binaries_root_path) + "/" + patchset[patch_subject][patch_core][install_type][install_directory][install_file] + install_directory + "/" + install_file
                                 if not Path(source_file).exists():
                                     logging.info(f"File not found: {source_file}")
@@ -140,27 +146,17 @@ class PatcherValidation:
                                     self.active_patchset_files.append(source_file)
 
         logging.info(f"Validating against Darwin {major_kernel}.{minor_kernel}")
-        if not sys_patch_helpers.SysPatchHelpers(self.constants).generate_patchset_plist(patchset, f"OpenCore-Legacy-Patcher-{major_kernel}.{minor_kernel}.plist", None):
+        if not sys_patch_helpers.SysPatchHelpers(self.constants).generate_patchset_plist(patchset, f"OpenCore-Legacy-Patcher-{major_kernel}.{minor_kernel}.plist", None, None):
             raise Exception("Failed to generate patchset plist")
 
         # Remove the plist file after validation
         Path(self.constants.payload_path / f"OpenCore-Legacy-Patcher-{major_kernel}.{minor_kernel}.plist").unlink()
 
 
-    def _validate_sys_patch(self) -> None:
+    def _unmount_dmg(self) -> None:
         """
-        Validates sys_patch modules
+        Unmounts the Universal-Binaries.dmg
         """
-
-        if not Path(self.constants.payload_local_binaries_root_path_dmg).exists():
-            dl_obj = network_handler.DownloadObject(f"https://github.com/dortania/PatcherSupportPkg/releases/download/{self.constants.patcher_support_pkg_version}/Universal-Binaries.dmg", self.constants.payload_local_binaries_root_path_dmg)
-            dl_obj.download(spawn_thread=False)
-            if dl_obj.download_complete is False:
-                logging.info("Failed to download Universal-Binaries.dmg")
-                raise Exception("Failed to download Universal-Binaries.dmg")
-
-        logging.info("Validating Root Patch File integrity")
-
         if Path(self.constants.payload_path / Path("Universal-Binaries_overlay")).exists():
             subprocess.run(
                 [
@@ -183,6 +179,23 @@ class PatcherValidation:
 
                 raise Exception("Failed to unmount Universal-Binaries.dmg")
 
+
+    def _validate_sys_patch(self) -> None:
+        """
+        Validates sys_patch modules
+        """
+
+        if not Path(self.constants.payload_local_binaries_root_path_dmg).exists():
+            dl_obj = network_handler.DownloadObject(f"https://github.com/dortania/PatcherSupportPkg/releases/download/{self.constants.patcher_support_pkg_version}/Universal-Binaries.dmg", self.constants.payload_local_binaries_root_path_dmg)
+            dl_obj.download(spawn_thread=False)
+            if dl_obj.download_complete is False:
+                logging.info("Failed to download Universal-Binaries.dmg")
+                raise Exception("Failed to download Universal-Binaries.dmg")
+
+        logging.info("Validating Root Patch File integrity")
+
+        self._unmount_dmg()
+
         output = subprocess.run(
             [
                 "/usr/bin/hdiutil", "attach", "-noverify", f"{self.constants.payload_local_binaries_root_path_dmg}",
@@ -201,7 +214,8 @@ class PatcherValidation:
             raise Exception("Failed to mount Universal-Binaries.dmg")
 
         logging.info("Mounted Universal-Binaries.dmg")
-
+        
+        atexit.register(self._unmount_dmg)
 
         for supported_os in [os_data.os_data.big_sur, os_data.os_data.monterey, os_data.os_data.ventura, os_data.os_data.sonoma]:
             for i in range(0, 10):

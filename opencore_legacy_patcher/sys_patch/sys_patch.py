@@ -39,7 +39,8 @@ import logging
 import plistlib
 import subprocess
 
-from pathlib import Path
+from pathlib   import Path
+from functools import cache
 
 from .mount import (
     RootVolumeMount,
@@ -54,12 +55,16 @@ from .utilities import (
 
 from .. import constants
 
-from ..datasets import os_data
 from ..volume   import generate_copy_arguments
 
+from ..datasets import (
+    os_data,
+    sys_patch_dict
+)
 from ..support import (
     utilities,
-    subprocess_wrapper
+    subprocess_wrapper,
+    metallib_handler
 )
 from . import (
     sys_patch_helpers,
@@ -80,6 +85,7 @@ class PatchSysVolume:
         self.patch_set_dictionary = {}
         self.needs_kmutil_exemptions = False # For '/Library/Extensions' rebuilds
         self.kdk_path = None
+        self.metallib_path = None
 
         # GUI will detect hardware patches before starting PatchSysVolume()
         # However the TUI will not, so allow for data to be passed in manually avoiding multiple calls
@@ -317,7 +323,7 @@ class PatchSysVolume:
         destination_path = f"{self.mount_location}/System/Library/CoreServices"
         file_name = "OpenCore-Legacy-Patcher.plist"
         destination_path_file = f"{destination_path}/{file_name}"
-        if sys_patch_helpers.SysPatchHelpers(self.constants).generate_patchset_plist(patchset, file_name, self.kdk_path):
+        if sys_patch_helpers.SysPatchHelpers(self.constants).generate_patchset_plist(patchset, file_name, self.kdk_path, self.metallib_path):
             logging.info("- Writing patchset information to Root Volume")
             if Path(destination_path_file).exists():
                 subprocess_wrapper.run_as_root_and_verify(["/bin/rm", destination_path_file], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -359,7 +365,7 @@ class PatchSysVolume:
         )
 
         source_files_path = str(self.constants.payload_local_binaries_root_path)
-        self._preflight_checks(required_patches, source_files_path)
+        required_patches = self._preflight_checks(required_patches, source_files_path)
         for patch in required_patches:
             logging.info("- Installing Patchset: " + patch)
             for method_remove in ["Remove", "Remove Non-Root"]:
@@ -431,13 +437,57 @@ class PatchSysVolume:
         self._write_patchset(required_patches)
 
 
-    def _preflight_checks(self, required_patches: dict, source_files_path: Path) -> None:
+    def _resolve_metallib_support_pkg(self) -> str:
+        """
+        Resolves MetalLibSupportPkg
+        """
+        metallib_obj = metallib_handler.MetalLibraryObject(self.constants, self.constants.detected_os_build, self.constants.detected_os_version)
+        if metallib_obj.success is False:
+            logging.error(f"Failed to find MetalLibSupportPkg: {metallib_obj.error_msg}")
+            raise Exception(f"Failed to find MetalLibSupportPkg: {metallib_obj.error_msg}")
+
+        metallib_download_obj = metallib_obj.retrieve_download()
+        if not metallib_download_obj:
+            # Already downloaded, return path
+            logging.info(f"Using MetalLibSupportPkg: {metallib_obj.metallib_installed_path}")
+            self.metallib_path = metallib_obj.metallib_installed_path
+            return str(metallib_obj.metallib_installed_path)
+
+        metallib_download_obj.download(spawn_thread=False)
+        if metallib_download_obj.download_complete is False:
+            error_msg = metallib_download_obj.error_msg
+            logging.error(f"Could not download MetalLibSupportPkg: {error_msg}")
+            raise Exception(f"Could not download MetalLibSupportPkg: {error_msg}")
+
+        if metallib_obj.install_metallib() is False:
+            logging.error("Failed to install MetalLibSupportPkg")
+            raise Exception("Failed to install MetalLibSupportPkg")
+
+        # After install, check if it's present
+        return self._resolve_metallib_support_pkg()
+
+
+    @cache
+    def _resolve_dynamic_patchset(self, variant: sys_patch_dict.DynamicPatchset) -> str:
+        """
+        Resolves dynamic patchset to a path
+        """
+        if variant == sys_patch_dict.DynamicPatchset.MetallibSupportPkg:
+            return self._resolve_metallib_support_pkg()
+
+        raise Exception(f"Unknown Dynamic Patchset: {variant}")
+
+
+    def _preflight_checks(self, required_patches: dict, source_files_path: Path) -> dict:
         """
         Runs preflight checks before patching
 
         Parameters:
             required_patches (dict): Patchset dictionary (from sys_patch_generate.GenerateRootPatchSets)
             source_files_path (Path): Path to the source files (PatcherSupportPkg)
+
+        Returns:
+            dict: Updated patchset dictionary
         """
 
         logging.info("- Running Preflight Checks before patching")
@@ -449,6 +499,12 @@ class PatchSysVolume:
                     continue
                 for install_patch_directory in required_patches[patch][method_type]:
                     for install_file in required_patches[patch][method_type][install_patch_directory]:
+                        try:
+                            if required_patches[patch][method_type][install_patch_directory][install_file] in sys_patch_dict.DynamicPatchset:
+                                required_patches[patch][method_type][install_patch_directory][install_file] = self._resolve_dynamic_patchset(required_patches[patch][method_type][install_patch_directory][install_file])
+                        except TypeError:
+                            pass
+
                         source_file = required_patches[patch][method_type][install_patch_directory][install_file] + install_patch_directory + "/" + install_file
 
                         # Check whether to source from root
@@ -480,6 +536,8 @@ class PatchSysVolume:
         self._merge_kdk_with_root(save_hid_cs=True if "Legacy USB 1.1" in required_patches else False)
 
         logging.info("- Finished Preflight, starting patching")
+
+        return required_patches
 
 
     # Entry Function
