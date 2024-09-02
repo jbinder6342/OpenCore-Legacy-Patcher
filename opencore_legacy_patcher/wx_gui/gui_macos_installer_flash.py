@@ -428,6 +428,8 @@ class macOSInstallerFlashFrame(wx.Frame):
         else:
             path = self.constants.installer_pkg_path
 
+        logging.info(f"autopkg_download == {link} {path}")
+        
         autopkg_download = network_handler.DownloadObject(link, path)
         autopkg_download.download(spawn_thread=False)
 
@@ -456,18 +458,23 @@ class macOSInstallerFlashFrame(wx.Frame):
             return
 
         os_version = plistlib.load(Path(path + "/System/Library/CoreServices/SystemVersion.plist").open("rb"))
+        logging.info(f"os_version == {os_version}")
         kernel_version = os_data.os_conversion.os_to_kernel(os_version["ProductVersion"])
         if int(kernel_version) < os_data.os_data.big_sur:
             logging.info("Installer unsupported, requires Big Sur or newer")
             return
 
+        logging.info(f"kernel_version == {kernel_version}")
+        
         subprocess.run(["/bin/mkdir", "-p", f"{path}/Library/Packages/"])
         subprocess.run(generate_copy_arguments(self.constants.installer_pkg_path, f"{path}/Library/Packages/"))
 
         # Chainload KDK and Metallib
+        logging.info(f"chainload KDK and Metallib...") 
         self._chainload_metallib(os_version["ProductBuildVersion"], os_version["ProductVersion"], Path(path + "/Library/Packages/"))
         self._kdk_chainload(os_version["ProductBuildVersion"], os_version["ProductVersion"], Path(path + "/Library/Packages/"))
-
+        logging.info(f"ProductBuildVersion == {ProductBuildVersion}, ProductVersion == {ProdVersion}")
+        
 
     def _kdk_chainload(self, build: str, version: str, download_dir: str):
         """

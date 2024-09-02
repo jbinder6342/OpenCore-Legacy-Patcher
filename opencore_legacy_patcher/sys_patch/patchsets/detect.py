@@ -272,8 +272,10 @@ class HardwarePatchsetDetection:
         """
         Determine whether to unlock Dortania Developer mode
         """
-        return Path("~/.dortania_developer").expanduser().exists()
-
+        dev_mode = Path("~/.dortania_developer").expanduser().exists()
+        logging.info(f"internal dev-mode (~/.dortania_developer): {dev_mode}")
+        return dev_mode
+    
 
     def _already_has_networking_patches(self) -> bool:
         """
