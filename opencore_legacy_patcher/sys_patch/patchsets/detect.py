@@ -341,17 +341,21 @@ class HardwarePatchsetDetection:
         Notes:
         - Non-Metal GPUs are stripped out if any Metal GPUs are present
         - Metal 3802 GPUs are stripped out if Metal 31001 GPUs are present on macOS Sequoia or newer
+          - Exception is made for "Graphics: AMD Legacy GCN" on Sequoia or newer
+          - Special handling is done in amd_legacy_gcn.py
         """
         non_metal_gpu_present   = False
         metal_gpu_present       = False
         metal_3802_gpu_present  = False
         metal_31001_gpu_present = False
+        metal_31001_name        = None
 
         for hardware in present_hardware:
             hardware: BaseHardware
             sub_variant = hardware.hardware_variant_graphics_subclass()
             if sub_variant == HardwareVariantGraphicsSubclass.METAL_31001_GRAPHICS:
                 metal_31001_gpu_present = True
+                metal_31001_name = hardware.name()
             elif sub_variant == HardwareVariantGraphicsSubclass.METAL_3802_GRAPHICS:
                 metal_3802_gpu_present = True
             elif sub_variant == HardwareVariantGraphicsSubclass.NON_METAL_GRAPHICS:
@@ -368,12 +372,13 @@ class HardwarePatchsetDetection:
                     present_hardware.remove(hardware)
 
         if metal_3802_gpu_present and metal_31001_gpu_present and self._xnu_major >= os_data.sequoia.value:
-            logging.error("Cannot mix Metal 3802 and Metal 31001 GPUs on macOS Sequoia or newer")
-            logging.error("Stripping out Metal 3802 GPUs")
-            for hardware in list(present_hardware):
-                if hardware.hardware_variant_graphics_subclass() == HardwareVariantGraphicsSubclass.METAL_3802_GRAPHICS:
-                    logging.error(f"  Stripping out {hardware.name()}")
-                    present_hardware.remove(hardware)
+            if metal_31001_name != "Graphics: AMD Legacy GCN":
+                logging.error("Cannot mix Metal 3802 and Metal 31001 GPUs on macOS Sequoia or newer")
+                logging.error("Stripping out Metal 3802 GPUs")
+                for hardware in list(present_hardware):
+                    if hardware.hardware_variant_graphics_subclass() == HardwareVariantGraphicsSubclass.METAL_3802_GRAPHICS:
+                        logging.error(f"  Stripping out {hardware.name()}")
+                        present_hardware.remove(hardware)
 
         return present_hardware
 
@@ -447,10 +452,10 @@ class HardwarePatchsetDetection:
             # During validation, don't skip missing items
             # This is to ensure we can validate all files
             if self._validation is False:
-                if item.present() is False: # Skip if not present
+                if item.present() is False:  # Skip if not present
                     continue
-            if item.native_os() is True:    # Skip if native OS
-                continue
+                if item.native_os() is True: # Skip if native OS
+                    continue
             present_hardware.append(item)
 
         present_hardware = self._strip_incompatible_hardware(present_hardware)

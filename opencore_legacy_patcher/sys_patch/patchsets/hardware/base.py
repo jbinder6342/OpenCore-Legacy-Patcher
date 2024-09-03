@@ -2,7 +2,8 @@
 base.py: Base class for hardware patch set detection
 """
 
-from enum import StrEnum
+from enum    import StrEnum
+from pathlib import Path
 
 from ..base import BasePatchset
 
@@ -31,6 +32,7 @@ class HardwareVariantGraphicsSubclass(StrEnum):
     NON_METAL_GRAPHICS:   str = "Non-Metal Graphics"
     METAL_3802_GRAPHICS:  str = "Metal 3802 Graphics"
     METAL_31001_GRAPHICS: str = "Metal 31001 Graphics"
+    HEADLESS_GRAPHICS:    str = "Headless Graphics"
     NOT_APPLICABLE:       str = "N/A"
 
 
@@ -165,3 +167,10 @@ class BaseHardware(BasePatchset):
         if self._xnu_float < self.macOS_14_4:
             return "12.5-23"
         return "12.5-23.4"
+
+
+    def _dortania_internal_check(self) -> None:
+        """
+        Determine whether to unlock Dortania Developer mode
+        """
+        return Path("~/.dortania_developer").expanduser().exists()
