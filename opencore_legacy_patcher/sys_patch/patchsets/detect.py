@@ -458,9 +458,10 @@ class HardwarePatchsetDetection:
                     continue
             present_hardware.append(item)
 
-        present_hardware = self._strip_incompatible_hardware(present_hardware)
+        if self._validation is False:
+            present_hardware = self._strip_incompatible_hardware(present_hardware)
 
-        # Second pass to gather all properties
+        # Second pass to determine requirements
         for item in present_hardware:
             item: BaseHardware
             device_properties[item.name()] = True
@@ -479,12 +480,11 @@ class HardwarePatchsetDetection:
             if item.required_amfi_level() > highest_amfi_level:
                 highest_amfi_level = item.required_amfi_level()
 
-            patches.update(item.patches())
-
-        if requires_metallib_support_pkg is True:
-            missing_metallib_support_pkg = not self._is_cached_metallib_support_pkg_present()
-        if requires_kernel_debug_kit is True:
-            missing_kernel_debug_kit = not self._is_cached_kernel_debug_kit_present()
+        if self._validation is False:
+            if requires_metallib_support_pkg is True:
+                missing_metallib_support_pkg = not self._is_cached_metallib_support_pkg_present()
+            if requires_kernel_debug_kit is True:
+                missing_kernel_debug_kit = not self._is_cached_kernel_debug_kit_present()
 
         requires_network_connection = missing_metallib_support_pkg or missing_kernel_debug_kit
 
@@ -509,10 +509,18 @@ class HardwarePatchsetDetection:
         _cant_patch   = False
         _cant_unpatch = requirements[HardwarePatchsetValidation.SIP_ENABLED]
 
-        if requirements[HardwarePatchsetValidation.SIP_ENABLED] is True:
-            requirements = self._handle_sip_breakdown(requirements, required_sip_configs)
-        if requirements[HardwarePatchsetValidation.MISSING_NETWORK_CONNECTION] is True:
-            requirements, device_properties = self._handle_missing_network_connection(requirements, device_properties)
+        if self._validation is False:
+            if requirements[HardwarePatchsetValidation.SIP_ENABLED] is True:
+                requirements = self._handle_sip_breakdown(requirements, required_sip_configs)
+            if requirements[HardwarePatchsetValidation.MISSING_NETWORK_CONNECTION] is True:
+                requirements, device_properties = self._handle_missing_network_connection(requirements, device_properties)
+
+        # Third pass to sync stripped hardware (ie. '_handle_missing_network_connection()')
+        for item in present_hardware:
+            item: BaseHardware
+            if item.name() not in device_properties:
+                continue
+            patches.update(item.patches())
 
         _cant_patch = not self._can_patch(requirements)
 

@@ -13,8 +13,8 @@ from .detections import device_probe
 class Constants:
     def __init__(self) -> None:
         # Patcher Versioning
-        self.patcher_version:                 str = "1.7.99x"  # OpenCore-Legacy-Patcher
-        self.patcher_support_pkg_version:     str = "1.7.7"  # PatcherSupportPkg
+        self.patcher_version:                 str = "2.0.99x"  # OpenCore-Legacy-Patcher
+        self.patcher_support_pkg_version:     str = "1.7.8"  # PatcherSupportPkg
         self.copyright_date:                  str = "Copyright © 2020-2024 Dortania"
         self.patcher_name:                    str = "OpenCore Legacy Patcher -- Sequoia Expr build."
 
@@ -28,7 +28,7 @@ class Constants:
 
         # OpenCore Versioning
         # https://github.com/acidanthera/OpenCorePkg
-        self.opencore_version: str = "1.0.0"
+        self.opencore_version: str = "1.0.1"
 
         # Kext Versioning
         ## Acidanthera
@@ -82,7 +82,7 @@ class Constants:
         self.corecaptureelcap_version: str = "1.0.2"  # corecaptureElCap
         self.io80211elcap_version:     str = "2.0.1"  # IO80211ElCap
         self.io80211legacy_version:    str = "1.0.0"  # IO80211FamilyLegacy (Ventura)
-        self.ioskywalk_version:        str = "1.1.0"  # IOSkywalkFamily (Ventura)
+        self.ioskywalk_version:        str = "1.2.0"  # IOSkywalkFamily (Ventura)
         self.bigsursdxc_version:       str = "1.0.0"  # BigSurSDXC
         self.monterey_ahci_version:    str = "1.0.0"  # CatalinaAHCI
 
@@ -179,7 +179,7 @@ class Constants:
         ## SMBIOS Settings
         self.serial_settings:     str  = "None"  #    Set SMBIOS level used
         self.override_smbios:     str  = "Default"  # Set SMBIOS model used
-        self.allow_native_spoofs: bool = False  #     Allow native models to recieve spoofs
+        self.allow_native_spoofs: bool = False  #     Allow native models to receive spoofs
 
         ### Serial Number Overrides
         self.custom_serial_number:       str = ""  # Set SMBIOS serial number

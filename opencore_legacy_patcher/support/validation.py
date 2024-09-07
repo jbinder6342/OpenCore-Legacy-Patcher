@@ -124,6 +124,9 @@ class PatcherValidation:
             minor_kernel (int): Minor kernel version
         """
 
+        patch_type_merge_exempt     = ["MechanismPlugins"]
+        patch_type_overwrite_exempt = []
+
         patchset = HardwarePatchsetDetection(self.constants, xnu_major=major_kernel, xnu_minor=minor_kernel, validation=True).patches
 
         for patch_core in patchset:
@@ -132,7 +135,7 @@ class PatcherValidation:
                 if install_type not in PatchType:
                     raise Exception(f"Unknown PatchType: {install_type}")
 
-            for install_type in [PatchType.INSTALL_SYSTEM_VOLUME, PatchType.INSTALL_DATA_VOLUME]:
+            for install_type in [PatchType.OVERWRITE_SYSTEM_VOLUME, PatchType.OVERWRITE_DATA_VOLUME, PatchType.MERGE_SYSTEM_VOLUME, PatchType.MERGE_DATA_VOLUME]:
                 if install_type in patchset[patch_core]:
                     for install_directory in patchset[patch_core][install_type]:
                         for install_file in patchset[patch_core][install_type][install_directory]:
@@ -141,6 +144,15 @@ class PatcherValidation:
                                     continue
                             except TypeError:
                                 pass
+
+                            # Technically there is nothing wrong with using a .framework with OVERWRITE, but it's a good indicator of a mistake
+                            if install_type in [PatchType.OVERWRITE_SYSTEM_VOLUME, PatchType.OVERWRITE_DATA_VOLUME]:
+                                if install_file.endswith(".framework") and install_file not in patch_type_overwrite_exempt:
+                                    raise Exception(f"{install_file} used with {install_type}, are you certain this is correct?")
+                            elif install_type in [PatchType.MERGE_SYSTEM_VOLUME, PatchType.MERGE_DATA_VOLUME]:
+                                if not install_file.endswith(".framework") and install_file not in patch_type_merge_exempt:
+                                    raise Exception(f"{install_file} used with {install_type}, are you certain this is correct?")
+
                             source_file = str(self.constants.payload_local_binaries_root_path) + "/" + patchset[patch_core][install_type][install_directory][install_file] + install_directory + "/" + install_file
                             if not Path(source_file).exists():
                                 logging.info(f"File not found: {source_file}")
