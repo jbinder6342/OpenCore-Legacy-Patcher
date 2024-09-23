@@ -22,6 +22,7 @@ Here are some common errors that users may experience while using this patcher:
 * [Stuck on "Less than a minute remaining..."](#stuck-on-less-than-a-minute-remaining)
 * [No acceleration after a Metal GPU swap on Mac Pro](#no-acceleration-after-a-metal-gpu-swap-on-mac-pro)
 * [Keyboard, Mouse and Trackpad not working in installer or after update](#keyboard-mouse-and-trackpad-not-working-in-installer-or-after-update)
+* [No T1 functionality after installing Sonoma or newer](#no-t1-functionality-after-installing-sonoma-or-newer)
 
 
 ## OpenCore Legacy Patcher not launching
@@ -237,7 +238,7 @@ For Macs using legacy USB 1.1 controllers, OpenCore Legacy Patcher can only rest
 
 In macOS Sonoma, this seems to have been further weakened and some hubs may not be functional. 
 
-Alternative way is making sure to enable "Remote Login" in General -> Sharing before updating, which will enable SSH. That means you can take control using Terminal in another system by typing `ssh username@lan-ip-address` and your password. After that run Post Install Volume Patching by typing `/Applications/OpenCore-Patcher.app/Contents/MacOS/OpenCore-Patcher --patch-sys-vol` and finally `sudo reboot`.
+Alternative way is making sure to enable "Remote Login" in General -> Sharing before updating, which will enable SSH. That means you can take control using Terminal in another system by typing `ssh username@lan-ip-address` and your password. After that run Post Install Volume Patching by typing `/Applications/OpenCore-Patcher.app/Contents/MacOS/OpenCore-Patcher --patch_sys_vol` and finally `sudo reboot`.
 
 :::
 
@@ -262,3 +263,9 @@ Applicable models include:
 
 
 ![](./images/usb11-chart.png)
+
+## No T1 functionality after installing Sonoma or newer
+
+If you notice your Touchbar etc not working, this means loss of T1 functionality. 
+
+Wiping the entire disk using Disk Utility with Sonoma or newer causes the T1 firmware to be removed, which due to removed support, the macOS Sonoma+ installer will not restore. To restore T1 functionality, Ventura or older has to be reinstalled. This can be done in another volume or external disk as well, as long as the OS is booted once. After this you can wipe the old OS or unplug the external disk.
