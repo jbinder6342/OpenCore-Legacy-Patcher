@@ -147,11 +147,13 @@ class BuildWirelessNetworking:
         Simply adding the Device IDs and usage of AirPortBrcmFixup will restore full functionality
         """
 
+        logging.info(f"- SET wifi_fake_id {utilities.friendly_hex(self.computer.wifi.vendor_id)}:{utilities.friendly_hex(self.computer.wifi.device_id)}")
+
         support.BuildSupport(self.model, self.constants, self.config).enable_kext("AirportBrcmFixup.kext", self.constants.airportbcrmfixup_version, self.constants.airportbcrmfixup_path)
         support.BuildSupport(self.model, self.constants, self.config).get_kext_by_bundle_path("AirportBrcmFixup.kext/Contents/PlugIns/AirPortBrcmNIC_Injector.kext")["Enabled"] = True
         if not self.constants.custom_model and self.computer.wifi and self.computer.wifi.pci_path:
             arpt_path = self.computer.wifi.pci_path
-            logging.info(f"- Found ARPT device at {arpt_path}")
+            logging.info(f"- Found wifi ARPT device at {arpt_path}")
         else:
             if not self.model in smbios_data.smbios_dictionary:
                 logging.info("No known PCI pathing for this model")
@@ -170,7 +172,7 @@ class BuildWirelessNetworking:
                     # Assumes we have a laptop with Intel chipset
                     # iMac11,x-12,x also apply
                     arpt_path = "PciRoot(0x0)/Pci(0x1C,0x1)/Pci(0x0,0x0)"
-            logging.info(f"- Using known ARPT Path: {arpt_path}")
+            logging.info(f"- Using known wifi ARPT Path: {arpt_path}")
 
         if not self.constants.custom_model and self.computer.wifi and self.constants.validate is False and self.computer.wifi.country_code:
             logging.info(f"- Applying fake ID for WiFi, setting Country Code: {self.computer.wifi.country_code}")

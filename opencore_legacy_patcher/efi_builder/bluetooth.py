@@ -71,7 +71,7 @@ class BuildBluetooth:
             # Due to this, BlueToolFixup is required to resolve Firmware Uploading on legacy chipsets
             if self.computer.wifi:
                 if self.computer.wifi.chipset == device_probe.Broadcom.Chipsets.AirPortBrcm4360:
-                    logging.info("- Fixing Legacy Bluetooth for macOS Monterey")
+                    logging.info("- Fixing Legacy Bluetooth for macOS Monterey(AirPortBrcm4360)")
                     support.BuildSupport(self.model, self.constants, self.config).enable_kext("BlueToolFixup.kext", self.constants.bluetool_version, self.constants.bluetool_path)
 
             # Older Mac firmwares (pre-2012) don't support the new chipsets correctly (regardless of WiFi card)
