@@ -114,8 +114,12 @@ int main(int argc, const char * argv[]) {
         #ifdef DEBUG
         // Skip Team ID check in debug mode
         // DO NOT USE IN PRODUCTION
-	printf("skipping check for VALID_CLIENT_TEAM_ID: '%s'=='%s'\n",
-	       (const char *) VALID_CLIENT_TEAM_ID, (char *) processSigningInformation[@"teamid"]);
+	// printf("skipping check for VALID_CLIENT_TEAM_ID: '%s'=='%s'\n",
+	//        (const char *) VALID_CLIENT_TEAM_ID, (char *) processSigningInformation[@"teamid"]);
+
+	// above can cause issues with python decoding... 
+	printf("skipping check for VALID_CLIENT_TEAM_ID\n");
+	
         #else
         // Check Team ID
 	printf("checking VALID_CLIENT_TEAM_ID: '%s'=='%s'\n",
