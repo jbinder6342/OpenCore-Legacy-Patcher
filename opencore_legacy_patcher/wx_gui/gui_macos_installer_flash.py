@@ -473,7 +473,7 @@ class macOSInstallerFlashFrame(wx.Frame):
         logging.info(f"chainload KDK and Metallib...") 
         self._chainload_metallib(os_version["ProductBuildVersion"], os_version["ProductVersion"], Path(path + "/Library/Packages/"))
         self._kdk_chainload(os_version["ProductBuildVersion"], os_version["ProductVersion"], Path(path + "/Library/Packages/"))
-        logging.info(f"ProductBuildVersion == {ProductBuildVersion}, ProductVersion == {ProdVersion}")
+        logging.info(f"ProductBuildVersion == {os_version['ProductBuildVersion']}, ProductVersion == {os_version['ProductVersion']}")
         
 
     def _kdk_chainload(self, build: str, version: str, download_dir: str):

@@ -32,7 +32,14 @@ class PrivilegedHelperErrorCodes(enum.IntEnum):
     OCLP_PHT_ERROR_COMMAND_FAILED              = 169
     OCLP_PHT_ERROR_CATCH_ALL                   = 170
 
-
+def decode_string(string):
+    if isinstance(string, bytes):
+        # String is encoded in bytes, so decode it
+        return string.decode('utf-8', 'backslashreplace')
+    else:
+        # String is already Unicode, so return it as-is
+        return string
+    
 def run(*args, **kwargs) -> subprocess.CompletedProcess:
     """
     Basic subprocess.run wrapper.
@@ -51,8 +58,24 @@ def run_as_root(*args, **kwargs) -> subprocess.CompletedProcess:
     if not Path(args[0][0]).exists():
         raise FileNotFoundError(f"File not found: {args[0][0]}")
 
-    return subprocess.run([OCLP_PRIVILEGED_HELPER] + [args[0][0]] + args[0][1:], **kwargs)
+    output = None 
+    try:
+        logging.info("run_as_root() ==> %s", repr(OCLP_PRIVILEGED_HELPER) + repr(', '.join(map(str, args))))
+        for key, value in kwargs.items():
+            logging.info("\tkwargs: %s == %s" % (key, value))
+        
+        output = subprocess.run([OCLP_PRIVILEGED_HELPER] + [args[0][0]] + args[0][1:], **kwargs)
+        log(output)
 
+    except UnicodeDecodeError as e:
+        logging.error("UnicodeDecodeError Error:", repr(e))
+        pass 
+        
+    except Exception as e:
+        logging.error("Exception Error:", repr(e))
+        raise
+
+    return output
 
 def verify(process_result: subprocess.CompletedProcess) -> None:
     """
@@ -122,12 +145,12 @@ def generate_log(process: subprocess.CompletedProcess) -> str:
         output += f"        Likely Enum: {_returned_error}\n"
     output += f"    Standard Output:\n"
     if process.stdout:
-        output += __format_output(process.stdout.decode("utf-8"))
+        output += __format_output(decode_string(process.stdout))
     else:
         output += "        None\n"
     output += f"    Standard Error:\n"
     if process.stderr:
-        output += __format_output(process.stderr.decode("utf-8"))
+        output += __format_output(decode_string(process.stderr))
     else:
         output += "        None\n"
 
