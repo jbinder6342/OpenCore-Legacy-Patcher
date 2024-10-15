@@ -121,7 +121,7 @@ int main(int argc, const char * argv[]) {
 	//        (const char *) VALID_CLIENT_TEAM_ID, (char *) processSigningInformation[@"teamid"]);
 
 	// above can cause issues with python decoding... 
-	printf("skipping check for VALID_CLIENT_TEAM_ID\n");
+	printf("DEBUG Build -- skipping check for VALID_CLIENT_TEAM_ID\n");
 	
         #else
         // Check Team ID
