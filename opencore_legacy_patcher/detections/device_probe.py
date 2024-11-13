@@ -7,6 +7,7 @@ import itertools
 import subprocess
 import plistlib
 import hashlib
+import logging 
 
 from pathlib import Path
 from dataclasses import dataclass, field
@@ -915,8 +916,10 @@ class Computer:
 
     def bluetooth_probe(self):
         if not self.usb_devices:
+            logging.warn("- bluetooth_probe() -- no usb_devices")
             return
-
+        logging.info("%s" % "\t\t\n".join([str(x) for x in self.usb_devices]))
+        
         # Ensure we get the "best" bluetooth chipset (if multiple are present)
         if any("BRCM20702" in usb_device.product_name for usb_device in self.usb_devices):
             self.bluetooth_chipset = "BRCM20702 Hub"
@@ -928,6 +931,13 @@ class Computer:
             self.bluetooth_chipset = "BRCM2046 Hub"
         elif any("Bluetooth" in usb_device.product_name for usb_device in self.usb_devices):
             self.bluetooth_chipset = "Generic"
+
+        # Cambridge Silicon Radio bluetooth check?
+        for usb_device in self.usb_devices:
+            if usb_device.vendor_id == 0xa12 and usb_device.device_id == 1:
+                #self.bluetooth_chipset =  bluetooth_data.bluetooth_data.APPLE_CSR
+                self.bluetooth_chipset =  "Generic"
+        logging.info("- bluetooth_probe() -- bluetooth_chipset == %s" % self.bluetooth_chipset)
 
     def topcase_probe(self):
         if not self.usb_devices:

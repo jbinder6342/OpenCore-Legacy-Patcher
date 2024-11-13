@@ -53,25 +53,28 @@ class BuildBluetooth:
         self.config["NVRAM"]["Add"]["7C436110-AB2A-4BBB-A880-FE41995C9F82"]["bluetoothInternalControllerInfo"] = binascii.unhexlify("0000000000000000000000000000")
         self.config["NVRAM"]["Add"]["7C436110-AB2A-4BBB-A880-FE41995C9F82"]["bluetoothExternalDongleFailed"] = binascii.unhexlify("00")
         self.config["NVRAM"]["Delete"]["7C436110-AB2A-4BBB-A880-FE41995C9F82"] += ["bluetoothInternalControllerInfo", "bluetoothExternalDongleFailed"]
-
+        logging.info("- bluetooth_firmware_incompatibility_workaround set.")
 
     def _on_model(self) -> None:
         """
         On-Model Hardware Detection Handling
         """
         if self.computer.bluetooth_chipset in ["BRCM2070 Hub", "BRCM2046 Hub"]:
-            logging.info("- Fixing Legacy Bluetooth for macOS Monterey")
+            logging.info("- on_model() -- Fixing Legacy Bluetooth for macOS Monterey (BRCM2070 Hub, BRCM2046 Hub)")
             support.BuildSupport(self.model, self.constants, self.config).enable_kext("BlueToolFixup.kext", self.constants.bluetool_version, self.constants.bluetool_path)
             support.BuildSupport(self.model, self.constants, self.config).enable_kext("Bluetooth-Spoof.kext", self.constants.btspoof_version, self.constants.btspoof_path)
             self.config["NVRAM"]["Add"]["7C436110-AB2A-4BBB-A880-FE41995C9F82"]["boot-args"] += " -btlfxallowanyaddr"
             self._bluetooth_firmware_incompatibility_workaround()
         elif self.computer.bluetooth_chipset == "BRCM20702 Hub":
+            logging.info("- _on_model() BRCM20702 Hub found")
             # BCM94331 can include either BCM2070 or BRCM20702 v1 Bluetooth chipsets
             # Note Monterey only natively supports BRCM20702 v2 (found with BCM94360)
             # Due to this, BlueToolFixup is required to resolve Firmware Uploading on legacy chipsets
             if self.computer.wifi:
+                logging.info("- _on_model() -- computer.wifi")
+
                 if self.computer.wifi.chipset == device_probe.Broadcom.Chipsets.AirPortBrcm4360:
-                    logging.info("- Fixing Legacy Bluetooth for macOS Monterey(AirPortBrcm4360)")
+                    logging.info("- _on_model() -- Fixing Legacy Bluetooth for macOS Monterey(AirPortBrcm4360)")
                     support.BuildSupport(self.model, self.constants, self.config).enable_kext("BlueToolFixup.kext", self.constants.bluetool_version, self.constants.bluetool_path)
 
             # Older Mac firmwares (pre-2012) don't support the new chipsets correctly (regardless of WiFi card)
@@ -80,10 +83,10 @@ class BuildBluetooth:
                     logging.info("- Fixing Legacy Bluetooth for macOS Monterey")
                     support.BuildSupport(self.model, self.constants, self.config).enable_kext("BlueToolFixup.kext", self.constants.bluetool_version, self.constants.bluetool_path)
                     self._bluetooth_firmware_incompatibility_workaround()
-        elif self.computer.bluetooth_chipset == "3rd Party Bluetooth 4.0 Hub":
-            logging.info("- Detected 3rd Party Bluetooth Chipset")
+        elif self.computer.bluetooth_chipset in ["3rd Party Bluetooth 4.0 Hub", "Generic"]:
+            logging.info("- on_model() -- Detected 3rd Party Bluetooth Chipset/Generic")
             support.BuildSupport(self.model, self.constants, self.config).enable_kext("BlueToolFixup.kext", self.constants.bluetool_version, self.constants.bluetool_path)
-            logging.info("- Enabling Bluetooth FeatureFlags")
+            logging.info("- on_model() -- Enabling Bluetooth FeatureFlags")
             self.config["Kernel"]["Quirks"]["ExtendBTFeatureFlags"] = True
 
 
