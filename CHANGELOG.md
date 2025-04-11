@@ -1,5 +1,17 @@
 # OpenCore Legacy Patcher changelog
 
+## 2.4.0
+- Reduce CPU usage on main UI thread
+
+## 2.3.2
+- Resolve erroring in Passwords app and Safari Autofill on T1 Macs running 15.4 or later
+- Increment binaries:
+  - PatcherSupportPkg 1.9.3 - release
+
+## 2.3.1
+- Resolve error on OpenCore Vaulted configs
+  - Regression from 2.3.0
+
 ## 2.3.0
 - Disable crash analytics
   - Disabled server side for years, removing client side
@@ -7,6 +19,11 @@
   - Deprecated in 1.5.0, use `OpenCore-Patcher.pkg` for installation
 - Sync copyright label to 2025
 - Resolve MetallibSupportPkg failing to be cached on units without Kernel Debug Kit requirements
+- Resolve Broadwell widget rendering on macOS Sequoia
+- Resolve non-Metal crashing on macOS Big Sur and Sequoia (15.4)
+- Resolve T1 erroring on macOS Sequoia (15.4)
+- Enabled non-metal beta menubar styling globally
+  - No changes to GUI settings
 - Increment binaries:
   - OpenCorePkg 1.0.4 - release
   - Lilu 1.7.0 - release
@@ -19,7 +36,7 @@
   - CPUFriend 1.2.9 - release
   - BlueToolFixup 2.6.9 - release
   - CryptexFixup 1.0.4 - release
-
+  - PatcherSupportPkg 1.9.2 - release
 
 ## 2.2.0
 - Resolved non-metal accessibility zoom on macOS Sonoma/Sequoia
