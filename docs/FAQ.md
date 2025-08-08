@@ -1,6 +1,5 @@
 # FAQ
 
-
 * [Application requirements](#application-requirements)
 * [Application versioning](#application-versioning)
 * [How do I make sure I'm all up to date?](#how-do-i-make-sure-i-m-all-up-to-date)
@@ -75,7 +74,7 @@ General updates are usually fine, though it is always a good idea to wait few da
 
 It is extremely recommended to disable automatic updates (even downloading) when using OCLP, as Apple has recently changed the way automatic updates work. Updates are now getting staged during the download process and are already modifying the system volume, which can lead to broken system out of nowhere since the operating system gets into a liminal state between two versions. You can still manually initiate an update when you're ready to do so. 
 
-For a related "System version mismatch" error while root patching and more information, refer to [System version mismatch error when root patching](https://dortania.github.io/OpenCore-Legacy-Patcher/TROUBLESHOOTING.html#system-version-mismatch-error-when-root-patching) for troubleshooting.
+For a related "System version mismatch" error while root patching and more information, refer to [System version mismatch error when root patching](https://dortania.github.io/OpenCore-Legacy-Patcher/TROUBLESHOOT-APP.html#system-version-mismatch-error-when-root-patching) for troubleshooting.
 
 * Note: macOS Sequoia has begun prompting to enable automatic updates from 15.4 onward after an update install has finished and isn't giving a choice to fully decline, this means you may have to keep doing it again after updating to newer versions.
 
@@ -109,11 +108,11 @@ macOS doesn't allow direct downgrades, as such you will have to wipe the disk in
 
 **Lacking or broken root patches**
 
-If your system is being **really** slow and macOS is lacking wallpaper and transparency in Dock and menubar, make sure to install root patches to get proper drivers and functionality. Refer to [Applying post install volume patches](https://dortania.github.io/OpenCore-Legacy-Patcher/POST-INSTALL.html#applying-post-install-volume-patches) and the [Troubleshooting](https://dortania.github.io/OpenCore-Legacy-Patcher/TROUBLESHOOTING.html) section for more information. 
+If your system is being **really** slow and macOS is lacking wallpaper and transparency in Dock and menubar, make sure to install root patches to get proper drivers and functionality. Refer to [Applying post install volume patches](https://dortania.github.io/OpenCore-Legacy-Patcher/POST-INSTALL.html#applying-post-install-volume-patches) section for more information. 
 
 **Root patches will be wiped by macOS updates and have to be reinstalled after an update finishes.** 
 
-Patches can also break if automatic updates are enabled and an update prematurely modifies the system volume, refer to [System version mismatch error when root patching](https://dortania.github.io/OpenCore-Legacy-Patcher/TROUBLESHOOTING.html#system-version-mismatch-error-when-root-patching) for more information.
+Patches can also break if automatic updates are enabled and an update prematurely modifies the system volume, refer to [System version mismatch error when root patching](https://dortania.github.io/OpenCore-Legacy-Patcher/TROUBLESHOOT-APP.html#system-version-mismatch-error-when-root-patching) for more information.
 
 **Spotlight**
 
@@ -153,21 +152,38 @@ In essence, this means that some models are now aging rapidly and newer OS won't
 
 ## What is Metal and Non-Metal?
 
-Metal is Apple's proprietary graphics API which fully superseded OpenGL rendering of the operating system starting from macOS Mojave. When the word "Non-Metal" is used, it describes GPUs that are not Metal supported and require using OpenGL instead. Due to deprecation of OpenGL, many newer applications may require Metal rendering and as such will fail to run on systems with Non-Metal GPUs. Some built-in apps like Maps and everything relying on it (such as Find My) will fail to render as well on versions later than Big Sur.
+Metal is Apple's proprietary graphics API that acts as a replacement for OpenGL/OpenCL which fully superseded OpenGL rendering of the operating system starting from macOS Mojave. When the word "Non-Metal" is used, it describes GPUs that are not Metal supported and require using OpenGL instead. Due to deprecation of OpenGL, many newer applications may require Metal rendering and as such will fail to run on systems with Non-Metal GPUs. Some built-in apps like Maps and everything relying on it (such as Find My) will fail to render as well on versions later than Big Sur.
 
 A great rule of thumb is that Macs older than 2012 are non-Metal, with the exception of systems having upgradable GPUs.
 
-::: details Metal supported GPUs (click to expand)
+::: details macOS GPU Chart
 
-* Intel HD 4000 series (Ivy Bridge/3rd gen) and newer
-* AMD HD 7000 series (GCN 1) and newer
-* NVIDIA GTX 600 and 700 series (Kepler)
+Intel GMA series is completely unsupported, even when using OpenCore Legacy Patcher. 
 
-Everything older than mentioned are Non-Metal and therefore only support OpenGL. Non-Metal also includes NVIDIA Maxwell (GTX 900 series) and Pascal (GTX 1000 series) when used with patched Web Drivers on newer than macOS High Sierra.
+AMD Navi (RX 5000 - 6000 series) GPUs are non-functional in Mac Pro 2008 to 2012 using Ventura and newer due to lack of AVX2 support.
+
+| Graphics Vendor | Architecture | Series | Supports Metal |
+| :--- | :--- | :--- | :--- |
+| ATI | TeraScale 1 | HD 2XXX - HD 4XXX | <span style="color:red">No</span> |
+| ^^ | TeraScale 2 | HD 5XXX - HD 6XXX | ^^ |
+| AMD | GCN (and newer) | HD 7XXX+ | <span style="color:green">Yes</span> |
+| NVIDIA | Tesla | 8XXX - 3XX | <span style="color:red">No</span> |
+| ^^ | Fermi | 4XX - 5XX | ^^ |
+| ^^ | Kepler | 6XX - 7XX | <span style="color:green">Yes</span> |
+| ^^ | Maxwell | 8XX - 9XX | <span style="color:red">No (on 10.14 and newer)</span> |
+| ^^ | Pascal | 10XX | ^^ |
+| Intel | GMA | GMA 900 - GMA X3000 | <span style="color:red">No</span> |
+| ^^ | Iron Lake | HD series | ^^ |
+| ^^ | Sandy Bridge | HD 3000 | ^^ |
+| ^^ | Ivy Bridge (and newer) | HD 4000 | <span style="color:green">Yes</span> |
 
 :::
 
-Refer to [Supported models,](https://dortania.github.io/OpenCore-Legacy-Patcher/MODELS.html) the [Non-Metal GitHub issue](https://github.com/dortania/OpenCore-Legacy-Patcher/issues/108) and [Working Around Non-Metal Issues](https://dortania.github.io/OpenCore-Legacy-Patcher/ACCEL.html) pages for more information.
+Refer to the following pages for more information
+- [Supported models,](https://dortania.github.io/OpenCore-Legacy-Patcher/MODELS.html) 
+- [Non-Metal GitHub issue](https://github.com/dortania/OpenCore-Legacy-Patcher/issues/108)
+- [Non-Metal Issues](https://dortania.github.io/OpenCore-Legacy-Patcher/TROUBLESHOOT-NONMETAL.html)
+- [Hardware troubleshooting](https://dortania.github.io/OpenCore-Legacy-Patcher/TROUBLESHOOT-HARDWARE)
 
 
 ## What are FeatureUnlock and mediaanalysisd?
@@ -213,4 +229,7 @@ iPhone Mirroring requires a T2 chip, which means it will not be available on OCL
 ## Where is Apple Intelligence?
 
 Apple Intelligence requires Neural Engine, which is only found in Apple Silicon chips.
+
+
+
 
